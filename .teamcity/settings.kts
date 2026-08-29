@@ -59,13 +59,8 @@ object ApplitoolsVisualTests : BuildType({
 
         maven {
             name = "Run Applitools Eyes tests"
-            // NOTE: this repo's tests are plain classes with a main() method,
-            // invoked via exec-maven-plugin rather than JUnit/Surefire. If your
-            // project uses standard JUnit-style tests instead, replace this with:
-            //   goals = "test"
-            //   runnerArgs = "-Dtest=**/*VisualTest -B"
-            goals = "clean test-compile exec:exec@run-the-tests"
-            runnerArgs = "-B -Dexec.classpathScope=test"
+            goals = "test"
+            runnerArgs = "-Dtest=**/*VisualTest -B"
 
             // Fail fast is usually undesirable for visual tests since you want
             // the full batch to complete and populate the Applitools dashboard

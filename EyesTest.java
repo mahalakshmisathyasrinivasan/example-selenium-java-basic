@@ -18,7 +18,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
     the CI pipeline (TeamCity -> Maven -> Surefire -> Eyes SDK -> Applitools
     dashboard) works end-to-end.
 */
-public class EyesVisualTest {
+public class EyesTest {
 
     private ClassicRunner runner;
     private Eyes eyes;

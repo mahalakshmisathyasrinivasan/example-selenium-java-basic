@@ -60,7 +60,7 @@ object ApplitoolsVisualTests : BuildType({
         maven {
             name = "Run Applitools Eyes tests"
             goals = "test"
-            runnerArgs = "-Dtest=**/*VisualTest -B"
+            runnerArgs = "-Dtest=**/EyesTest -B"
 
             // Fail fast is usually undesirable for visual tests since you want
             // the full batch to complete and populate the Applitools dashboard

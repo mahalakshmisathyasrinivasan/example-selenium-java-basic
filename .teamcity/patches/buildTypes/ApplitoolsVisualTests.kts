@@ -63,7 +63,7 @@ changeBuildType(RelativeId("ApplitoolsVisualTests")) {
         update<MavenBuildStep>(1) {
             clearConditions()
             goals = "clean test-compile exec:exec@run-the-tests"
-            runnerArgs = "B -Dexec.classpathScope=test"
+            runnerArgs = "-B -Dexec.classpathScope=test"
             param("teamcity.build.failOnErrorMessages", "")
             param("teamcity.kubernetes.executor.pull.policy", "")
         }

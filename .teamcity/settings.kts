@@ -59,8 +59,13 @@ object ApplitoolsVisualTests : BuildType({
 
         maven {
             name = "Run Applitools Eyes tests"
-            goals = "test"
-            runnerArgs = "-Dtest=**/*VisualTest -B"
+            // NOTE: this repo's tests are plain classes with a main() method,
+            // invoked via exec-maven-plugin rather than JUnit/Surefire. If your
+            // project uses standard JUnit-style tests instead, replace this with:
+            //   goals = "test"
+            //   runnerArgs = "-Dtest=**/*VisualTest -B"
+            goals = "clean test-compile exec:exec@run-the-tests"
+            runnerArgs = "-B -Dexec.classpathScope=test"
 
             // Fail fast is usually undesirable for visual tests since you want
             // the full batch to complete and populate the Applitools dashboard
@@ -78,16 +83,16 @@ object ApplitoolsVisualTests : BuildType({
                 # tests before letting the pipeline proceed to deploy. Requires the batch
                 # to be closed (all tests finished) before this check is meaningful.
                 # Docs: https://applitools.com/docs/eyes/reference/server-api/batches/list-batch-results
-                RESPONSE=${'$'}(curl -s -H "X-Eyes-Api-Key: %env.APPLITOOLS_API_KEY%" \
+                RESPONSE=$(curl -s -H "X-Eyes-Api-Key: %env.APPLITOOLS_API_KEY%" \
                   "https://eyes.applitools.com/api/v1/batches/%env.APPLITOOLS_BATCH_ID%?statsOnly=true")
 
-                echo "${'$'}RESPONSE"
+                echo "$RESPONSE"
 
-                FAILED=${'$'}(echo "${'$'}RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['statistics']['failed'])")
-                UNRESOLVED=${'$'}(echo "${'$'}RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['statistics']['unresolved'])")
+                FAILED=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['statistics']['failed'])")
+                UNRESOLVED=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['statistics']['unresolved'])")
 
-                if [ "${'$'}FAILED" != "0" ] || [ "${'$'}UNRESOLVED" != "0" ]; then
-                  echo "##teamcity[buildStatus status='FAILURE' text='Applitools batch has failed=${'$'}FAILED unresolved=${'$'}UNRESOLVED diffs']"
+                if [ "$FAILED" != "0" ] || [ "$UNRESOLVED" != "0" ]; then
+                  echo "##teamcity[buildStatus status='FAILURE' text='Applitools batch has failed=$FAILED unresolved=$UNRESOLVED diffs']"
                   exit 1
                 fi
             """.trimIndent()

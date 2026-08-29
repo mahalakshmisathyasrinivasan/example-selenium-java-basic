@@ -17,7 +17,7 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
     the VCS root ID, build steps, and parameter names to match your project.
 */
 
-version = "2026.01"
+version = "2026.1"
 
 project {
     buildType(ApplitoolsVisualTests)

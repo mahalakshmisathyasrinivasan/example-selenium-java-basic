@@ -57,12 +57,39 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
             id = "Clear_stale_ChromeDriver"
             scriptContent = """
                 #!/bin/bash
-                echo "Removing all chromedriver binaries and Selenium Manager caches..."
-                find / -xdev -name "chromedriver" -type f 2>/dev/null -print -delete
-                rm -rf ~/.cache/selenium
-                rm -rf /root/.cache/selenium
-                rm -rf /home/*/.cache/selenium
-                which -a chromedriver 2>/dev/null || echo "chromedriver no longer in PATH"
+                echo "Current user: ${'$'}(whoami)"
+                echo "Looking for chromedriver installations..."
+                
+                FOUND=${'$'}(find / -xdev -name "chromedriver" -type f 2>/dev/null)
+                echo "Found paths:"
+                echo "${'$'}FOUND"
+                
+                for path in ${'$'}FOUND; do
+                  echo "Permissions on ${'$'}path:"
+                  ls -la "${'$'}path"
+                  echo "Attempting removal of ${'$'}path..."
+                  if rm "${'$'}path" 2>/tmp/rm_err.txt; then
+                    echo "  Removed successfully (no sudo needed)"
+                  else
+                    echo "  Direct rm failed: ${'$'}(cat /tmp/rm_err.txt)"
+                    echo "  Trying with sudo..."
+                    if sudo rm -f "${'$'}path" 2>/tmp/sudo_err.txt; then
+                      echo "  Removed successfully with sudo"
+                    else
+                      echo "  sudo rm also failed: ${'$'}(cat /tmp/sudo_err.txt)"
+                    fi
+                  fi
+                done
+                
+                echo "Clearing Selenium Manager caches..."
+                rm -rf ~/.cache/selenium 2>/dev/null
+                sudo rm -rf /root/.cache/selenium 2>/dev/null
+                rm -rf /home/*/.cache/selenium 2>/dev/null
+                
+                echo "Final check - remaining chromedriver files:"
+                find / -xdev -name "chromedriver" -type f 2>/dev/null
+                
+                echo "Done."
             """.trimIndent()
         }
         maven {

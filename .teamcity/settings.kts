@@ -52,12 +52,6 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
             goals = "clean install -DskipTests"
             runnerArgs = "-B"
         }
-        maven {
-            name = "Run Applitools Eyes tests"
-            id = "Run_Applitools_Eyes_tests"
-            goals = "test"
-            runnerArgs = "-Dtest=**/EyesTest -B"
-        }
         script {
             name = "Clear stale ChromeDriver"
             id = "Clear_stale_ChromeDriver"
@@ -66,6 +60,12 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
                 rm -f ${'$'}(which chromedriver) || true
                 echo "Removed stale chromedriver, Selenium Manager will fetch a matching version"
             """.trimIndent()
+        }
+        maven {
+            name = "Run Applitools Eyes tests"
+            id = "Run_Applitools_Eyes_tests"
+            goals = "test"
+            runnerArgs = "-Dtest=**/EyesTest -B"
         }
     }
 })

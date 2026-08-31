@@ -56,8 +56,16 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
             name = "Clear stale ChromeDriver"
             id = "Clear_stale_ChromeDriver"
             scriptContent = """
-                rm -f /usr/bin/chromedriver
-                   echo "Removed stale chromedriver, Selenium Manager will fetch a matching version"
+                #!/bin/bash
+                echo "Looking for chromedriver installations..."
+                which chromedriver || echo "not in PATH"
+                find / -name "chromedriver" -type f 2>/dev/null
+                
+                echo "Removing all found chromedriver binaries..."
+                find / -name "chromedriver" -type f 2>/dev/null -exec rm -f {} \;
+                rm -rf ~/.cache/selenium
+                
+                echo "Done. Selenium Manager will download a fresh matching driver on next run."
             """.trimIndent()
         }
         maven {

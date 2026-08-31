@@ -56,7 +56,7 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
             name = "Run Applitools Eyes tests"
             id = "Run_Applitools_Eyes_tests"
             goals = "test"
-            runnerArgs = "-B Dtest=**/EyesTest -B test"
+            runnerArgs = "-Dtest=**/EyesTest -B"
         }
     }
 })

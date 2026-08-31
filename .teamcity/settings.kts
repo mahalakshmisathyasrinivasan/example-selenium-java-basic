@@ -40,6 +40,15 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
     vcs {
         root(DslContext.settingsRoot)
     }
+
+    steps {
+        maven {
+            name = "Install dependencies"
+            id = "Install_dependencies"
+            goals = "clean install -DskipTests"
+            runnerArgs = "-B"
+        }
+    }
 })
 
 object ApplitoolsVisualTests : BuildType({

@@ -37,6 +37,10 @@ project {
 object ApplitoolsVisualRegressionTestsV2 : BuildType({
     name = "Applitools Visual Regression Tests v2"
 
+    params {
+        password("env.APPLITOOLS_API_KEY", "credentialsJSON:986ce0c1-6420-4913-859e-c36d7640514e")
+    }
+
     vcs {
         root(DslContext.settingsRoot)
     }

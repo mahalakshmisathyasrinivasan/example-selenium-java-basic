@@ -57,39 +57,36 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
             id = "Clear_stale_ChromeDriver"
             scriptContent = """
                 #!/bin/bash
-                echo "Current user: ${'$'}(whoami)"
-                echo "Looking for chromedriver installations..."
+                set -e
+                CHROME_VERSION=${'$'}(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+                echo "Detected Chrome version: ${'$'}CHROME_VERSION"
                 
-                FOUND=${'$'}(find / -xdev -name "chromedriver" -type f 2>/dev/null)
-                echo "Found paths:"
-                echo "${'$'}FOUND"
+                MAJOR=${'$'}(echo "${'$'}CHROME_VERSION" | cut -d. -f1)
+                echo "Fetching matching chromedriver for major version ${'$'}MAJOR..."
                 
-                for path in ${'$'}FOUND; do
-                  echo "Permissions on ${'$'}path:"
-                  ls -la "${'$'}path"
-                  echo "Attempting removal of ${'$'}path..."
-                  if rm "${'$'}path" 2>/tmp/rm_err.txt; then
-                    echo "  Removed successfully (no sudo needed)"
-                  else
-                    echo "  Direct rm failed: ${'$'}(cat /tmp/rm_err.txt)"
-                    echo "  Trying with sudo..."
-                    if sudo rm -f "${'$'}path" 2>/tmp/sudo_err.txt; then
-                      echo "  Removed successfully with sudo"
-                    else
-                      echo "  sudo rm also failed: ${'$'}(cat /tmp/sudo_err.txt)"
-                    fi
-                  fi
-                done
+                JSON_URL="https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                DRIVER_URL=${'$'}(curl -s "${'$'}JSON_URL" | python3 -c "
+                import json, sys
+                data = json.load(sys.stdin)
+                matches = [v for v in data['versions'] if v['version'].startswith('${'$'}MAJOR.')]
+                if not matches:
+                    sys.exit('No matching version found')
+                latest = matches[-1]
+                for d in latest['downloads']['chromedriver']:
+                    if d['platform'] == 'linux64':
+                        print(d['url'])
+                        break
+                ")
                 
-                echo "Clearing Selenium Manager caches..."
-                rm -rf ~/.cache/selenium 2>/dev/null
-                sudo rm -rf /root/.cache/selenium 2>/dev/null
-                rm -rf /home/*/.cache/selenium 2>/dev/null
+                echo "Downloading from: ${'$'}DRIVER_URL"
+                curl -sL "${'$'}DRIVER_URL" -o /tmp/chromedriver.zip
+                unzip -o /tmp/chromedriver.zip -d /tmp/chromedriver-extract
+                sudo mkdir -p /usr/local/bin
+                sudo find /tmp/chromedriver-extract -name chromedriver -exec cp {} /usr/local/bin/chromedriver \;
+                sudo chmod +x /usr/local/bin/chromedriver
                 
-                echo "Final check - remaining chromedriver files:"
-                find / -xdev -name "chromedriver" -type f 2>/dev/null
-                
-                echo "Done."
+                /usr/local/bin/chromedriver --version
+                echo "Installed matching chromedriver to /usr/local/bin/chromedriver"
             """.trimIndent()
         }
         maven {

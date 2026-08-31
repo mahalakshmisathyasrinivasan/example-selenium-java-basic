@@ -48,6 +48,12 @@ object ApplitoolsVisualRegressionTestsV2 : BuildType({
             goals = "clean install -DskipTests"
             runnerArgs = "-B"
         }
+        maven {
+            name = "Run Applitools Eyes tests"
+            id = "Run_Applitools_Eyes_tests"
+            goals = "test"
+            runnerArgs = "Dtest=**/EyesTest -B"
+        }
     }
 })
 

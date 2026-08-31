@@ -30,8 +30,17 @@ version = "2026.1"
 
 project {
 
+    buildType(ApplitoolsVisualRegressionTestsV2)
     buildType(ApplitoolsVisualTests)
 }
+
+object ApplitoolsVisualRegressionTestsV2 : BuildType({
+    name = "Applitools Visual Regression Tests v2"
+
+    vcs {
+        root(DslContext.settingsRoot)
+    }
+})
 
 object ApplitoolsVisualTests : BuildType({
     name = "Applitools Visual Regression Tests"

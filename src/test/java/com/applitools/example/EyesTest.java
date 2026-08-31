@@ -29,6 +29,11 @@ public class EyesTest {
         runner = new ClassicRunner();
         eyes = new Eyes(runner);
 
+        // Pin the chromedriver binary explicitly instead of relying on
+        // Selenium Manager's auto-detection, which can pick up a stale
+        // driver already present on the CI agent's PATH.
+        System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
